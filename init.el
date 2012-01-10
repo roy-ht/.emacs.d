@@ -146,8 +146,8 @@ This is a replacement for `anything-for-files'."
 (setq auto-save-buffers-enhanced-interval 3)
 (auto-save-buffers-enhanced t)
 
-;; emacs起動時にPythonのパスをport selectしたものにあわせる
-(dolist (dir (list  
+;; emacs起動時にパスをport selectしたものにあわせる
+(dolist (dir (list
               "/sbin"  
               "/usr/sbin"  
               "/bin"  
@@ -156,6 +156,7 @@ This is a replacement for `anything-for-files'."
               "/sw/bin"  
               "/usr/local/bin"  
 	      "/opt/local/Library/Frameworks/Python.framework/Versions/Current/bin"
+	      "/Users/hiro/.nvm/v0.6.6/bin"
               (expand-file-name "~/bin")  
               (expand-file-name "~/.emacs.d/bin")  
               ))  
@@ -252,23 +253,60 @@ This is a replacement for `anything-for-files'."
 ;; python
 (add-hook 'python-mode-hook '(lambda () 
      (define-key python-mode-map "\C-m" 'newline-and-indent)))
-  (when (load "flymake" t) 
-         (defun flymake-pyflakes-init () 
-           (let* ((temp-file (flymake-init-create-temp-buffer-copy 
-                              'flymake-create-temp-inplace)) 
-              (local-file (file-relative-name 
-                           temp-file 
-                           (file-name-directory buffer-file-name)))) 
-             (list "pyflakes" (list local-file)))) 
 
-         (add-to-list 'flymake-allowed-file-name-masks 
-                  '("\\.py\\'" flymake-pyflakes-init))) 
+;; flymake definition
+(when (load "flymake" t)
+  ;; flymake python
+  (defun flymake-pyflakes-init () 
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy 
+		       'flymake-create-temp-inplace)) 
+	   (local-file (file-relative-name 
+			temp-file 
+			(file-name-directory buffer-file-name)))) 
+      (list "pyflakes" (list local-file)))) 
 
-   (add-hook 'find-file-hook 'flymake-find-file-hook)
+  (add-to-list 'flymake-allowed-file-name-masks 
+	       '("\\.py\\'" flymake-pyflakes-init)) 
+  
+  ;; FlymakeHtml
+  ;; http://www.emacswiki.org/emacs/FlymakeHtml
+  (delete '("\\.html?\\'" flymake-xml-init) flymake-allowed-file-name-masks)
+  (defun flymake-html-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      ;; (list "tidy" (list local-file))))
+      (list "tidy" (list "-utf8" local-file))))
+  (add-to-list 'flymake-allowed-file-name-masks
+               '("\\.html$\\|\\.ctp" flymake-html-init))
+  (add-to-list 'flymake-err-line-patterns
+               '("line \\([0-9]+\\) column \\([0-9]+\\) - \\(Warning\\|Error\\): \\(.*\\)"
+                 nil 1 2 4))
+  (add-hook 'html-mode-hook '(lambda () (flymake-mode t)))
+  (add-hook 'nxml-mode-hook '(lambda () (flymake-mode t)))
+  ;; flymake coffee
+  (require 'flymake-coffee)
+  (add-hook 'coffee-mode-hook 'flymake-coffee-load)
+
+  ;;;;;;;;;;;;;;;;;;
+  ;; error avoidance
+  ;; http://d.hatena.ne.jp/sugyan/20100705/1278306885
+  (defadvice flymake-post-syntax-check
+    (before flymake-force-check-was-interrupted)
+    (setq flymake-check-was-interrupted t))
+  (ad-activate 'flymake-post-syntax-check)
+  ;; option
+  (setq flymake-gui-warnings-enabled t)
+)
+
 
 ;; flymake
 (require 'flymake-cursor) ;; tooltipを出すように直接書き換え
-;; (require 'flymake-extension)
+(require 'flymake-extension)
+(add-hook 'find-file-hook 'flymake-find-file-hook)
+
 ;; (setq flymake-extension-use-showtip t)
 ;; (setq flymake-extension-auto-show t)
 (global-set-key "\C-cff" 'flymake-goto-next-error)
@@ -276,12 +314,13 @@ This is a replacement for `anything-for-files'."
 
 (require 'rfringe)
 (custom-set-faces
-  '(flymake-errline 
-     ((((class color)) 
-     (:italic t :underline "red" :weight extra-bold))))
-  '(flymake-warnline 
-     ((((class color)) 
-       (:italic t :underline "violet" :weight extra-bold)))))
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(flymake-errline ((((class color)) (:italic t :underline "red" :weight extra-bold))))
+ '(flymake-warnline ((((class color)) (:italic t :underline "violet" :weight extra-bold)))))
+
 
 ;; org-mode
 (require 'org-install)
@@ -307,3 +346,14 @@ This is a replacement for `anything-for-files'."
 
 
 
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(js2-always-indent-assigned-expr-in-decls-p t)
+ '(js2-auto-indent-p t)
+ '(js2-enter-indents-newline t)
+ '(js2-highlight-level 3)
+ '(js2-indent-on-enter-key t)
+ '(js2-mirror-mode t))
