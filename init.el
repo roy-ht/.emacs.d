@@ -1,60 +1,13 @@
-;; font İ’è
-(setq mac-allow-anti-aliasing t) ;; ƒAƒ“ƒ`ƒGƒCƒŠƒAƒX
-;; ƒtƒHƒ“ƒgƒZƒbƒg‚ğì‚é
-(let* ((fontset-name "myfonts") ; ƒtƒHƒ“ƒgƒZƒbƒg‚Ì–¼‘O
-       (size 15) ; ASCIIƒtƒHƒ“ƒg‚ÌƒTƒCƒY [9/10/12/14/15/17/19/20/...]
-       (asciifont "Menlo") ; ASCIIƒtƒHƒ“ƒg
-       (jpfont "Hiragino Maru Gothic ProN") ; “ú–{ŒêƒtƒHƒ“ƒg
-       (font (format "%s-%d:weight=normal:slant=normal" asciifont size))
-       (fontspec (font-spec :family asciifont))
-       (jp-fontspec (font-spec :family jpfont)) 
-       (fsn (create-fontset-from-ascii-font font nil fontset-name)))
-  (set-fontset-font fsn 'japanese-jisx0213.2004-1 jp-fontspec)
-  (set-fontset-font fsn 'japanese-jisx0213-2 jp-fontspec)
-  (set-fontset-font fsn 'katakana-jisx0201 jp-fontspec) ; ”¼ŠpƒJƒi
-  (set-fontset-font fsn '(#x0080 . #x024F) fontspec) ; •ª‰¹•„•t‚«ƒ‰ƒeƒ“
-  (set-fontset-font fsn '(#x0370 . #x03FF) fontspec) ; ƒMƒŠƒVƒƒ•¶š
-  )
+;; load path è¨­å®š
+(add-to-list 'load-path "~/.emacs.d/site-lisp" )
+(add-to-list 'load-path "~/.emacs.d/auto-install" )
 
-;; ƒfƒtƒHƒ‹ƒg‚ÌƒtƒŒ[ƒ€ƒpƒ‰ƒ[ƒ^‚ÅƒtƒHƒ“ƒgƒZƒbƒg‚ğw’è
-(add-to-list 'default-frame-alist '(font . "fontset-myfonts"))
+(cond
+ ((window-system)
+  (load "~/.emacs.d/init.app.el")
+  (load "~/.emacs.d/init.term.el")))
 
-;; ƒtƒHƒ“ƒgƒTƒCƒY‚Ì”ä‚ğİ’è
-(dolist (elt '(("^-apple-hiragino.*" . 1.2)
-		 (".*osaka-bold.*" . 1.2)
-		 (".*osaka-medium.*" . 1.2)
-		 (".*courier-bold-.*-mac-roman" . 1.0)
-		 (".*monaco cy-bold-.*-mac-cyrillic" . 0.9)
-		 (".*monaco-bold-.*-mac-roman" . 0.9)))
-    (add-to-list 'face-font-rescale-alist elt))
-
-;; ƒfƒtƒHƒ‹ƒgƒtƒFƒCƒX‚ÉƒtƒHƒ“ƒgƒZƒbƒg‚ğİ’è
-;; # ‚±‚ê‚Í‹N“®‚É default-frame-alist ‚É]‚Á‚½ƒtƒŒ[ƒ€‚ª
-;; # ì¬‚³‚ê‚È‚¢Œ»Û‚Ö‚Ì‘Îˆ
-(set-face-font 'default "fontset-myfonts")
-
-;; ƒe[ƒ}“Ç‚İ‚İ
-(add-to-list 'load-path "/opt/local/share/emacs/site-lisp/color-theme-6.6.0")
- (require 'color-theme)
- (eval-after-load "color-theme"
- 	'(progn
- 		(color-theme-initialize)
- 		(color-theme-clarity)))
-;; “§–¾“x
-(set-frame-parameter (selected-frame) 'alpha '(85 60))
-;; ƒEƒBƒ“ƒhƒEƒTƒCƒY
-(cond (window-system
-       (setq default-frame-alist
-             (append (list
-                      '(width  . 140)
-                      '(height . 60)
-                      '(top    . 0)
-                      '(left   . 0)
-                      )
-                     initial-frame-alist))
-       ))
- 
-;; paren ‹­’²
+;; paren å¼·èª¿
 (show-paren-mode t)
 
 (setq show-paren-delay 0)
@@ -71,24 +24,85 @@
 (global-set-key "\M-g" 'goto-line)
 ;; scroll
 (setq scroll-step 3)
-;; ‰üs
+;; æ”¹è¡Œ
 (setq require-final-newline t)
-;; ƒ^ƒCƒgƒ‹ƒo[
+;; ã‚¿ã‚¤ãƒˆãƒ«ãƒãƒ¼
 (setq frame-title-format (format "emacs@%s : %%f" (system-name)))
-;; 
+;; indentè¨­å®š
+(setq-default indent-tabs-mode nil)
+;; tab å¹…ã‚’ 4 ã«è¨­å®š
+(setq-default tab-width 4)
 
-;; ƒJ[ƒ\ƒ‹F‚ğIME‚ÌON/OFF‚Å•ÏX
-;; ‚¤‚Ü‚­‚¢‚©‚È‚¢BBB
+;; ã‚«ãƒ¼ã‚½ãƒ«è‰²ã‚’IMEã®ON/OFFã§å¤‰æ›´
+;; ã†ã¾ãã„ã‹ãªã„ã€‚ã€‚ã€‚
 
-;; load path İ’è
-(add-to-list 'load-path "~/.emacs.d/site-lisp" )
-(add-to-list 'load-path "~/.emacs.d/auto-install" )
+;; isearch+
+(eval-after-load "isearch" '(require 'isearch+))
 
-;; auto-install.el
-(require 'auto-install)
-(setq auto-install-directory "~/.emacs.d/auto-install/")
-(auto-install-update-emacswiki-package-name t)
-(auto-install-compatibility-setup) ; ŒİŠ·«Šm•Û
+(setq make-backup-files t)           ;; ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã¾ã¨ã‚ã‚‹
+(setq backup-directory-alist
+  (cons (cons "\\.*$" (expand-file-name "~/.emacs.d/backup"))
+    backup-directory-alist))
+(setq version-control t)             ;; è¤‡æ•°ã®ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ä¸–ä»£ã‚’ç®¡ç†
+(setq kept-new-versions 5)           ;; æ–°ã—ã„ã‚‚ã®ã‚’ã„ãã¤æ®‹ã™ã‹
+(setq kept-old-versions 5)           ;; å¤ã„ã‚‚ã®ã‚’ã„ãã¤æ®‹ã™ã‹
+(setq delete-old-versions t)         ;; ç¢ºèªã›ãšã«å¤ã„ã‚‚ã®ã‚’æ¶ˆã™ã€‚
+(setq vc-make-backup-files t)        ;; ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç®¡ç†ä¸‹ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚‚ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’ä½œã‚‹ã€‚
+(setq auto-save-default nil)         ;; #hoge#ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œã‚‰ãªã„
+
+;; æ¬¡å›èµ·å‹•æ™‚ã«ãƒ•ã‚¡ã‚¤ãƒ«ã®é–‹ãå…·åˆã‚’ãã®ã¾ã¾ã«ã—ã¦ãã‚Œã‚‹
+(require 'session)
+(setq session-undo-check -1)
+(add-hook 'after-init-hook 'session-initialize)
+
+;; auto-save å‹æ‰‹ã«ä¿å­˜ã—ã¦ãã‚Œã‚‹
+(require 'auto-save-buffers-enhanced)
+(setq auto-save-buffers-enhanced-interval 3)
+(auto-save-buffers-enhanced t)
+
+;; emacsèµ·å‹•æ™‚ã«ãƒ‘ã‚¹ã‚’port selectã—ãŸã‚‚ã®ã«ã‚ã‚ã›ã‚‹
+(dolist (dir (list
+              "/sbin"  
+              "/usr/sbin"  
+              "/bin"  
+              "/usr/bin"  
+              "/opt/local/bin"  
+              "/sw/bin"  
+              "/usr/local/bin"  
+	      "/opt/local/Library/Frameworks/Python.framework/Versions/Current/bin"
+	      "/Users/hiro/.nvm/v0.6.6/bin"
+              (expand-file-name "~/bin")  
+              (expand-file-name "~/.emacs.d/bin")  
+              ))  
+ ;; PATH ã¨ exec-path ã«åŒã˜ç‰©ã‚’è¿½åŠ ã—ã¾ã™  
+ (when (and (file-exists-p dir) (not (member dir exec-path)))  
+   (setenv "PATH" (concat dir ":" (getenv "PATH")))  
+   (setq exec-path (append (list dir) exec-path))))
+(setenv "MANPATH" (concat "/usr/local/man:/usr/share/man:/Developer/usr/share/man:/sw/share/man" (getenv "MANPATH")))
+
+;;; key è¨­å®š
+;; Optionã¨Commandã‚­ãƒ¼å…¥ã‚Œæ›¿ãˆ
+(setq ns-command-modifier (quote meta))
+(setq ns-alternate-modifier (quote super))
+;; ã‚·ã‚¹ãƒ†ãƒ ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆã‚’å„ªå…ˆã—ãªã„?
+(setq mac-pass-control-to-system nil)
+(setq mac-pass-command-to-system nil)
+(setq mac-pass-option-to-system nil)
+
+; æ—¥æœ¬èª
+(set-language-environment 'Japanese)
+; utf-8
+(prefer-coding-system 'utf-8-unix)
+; backspace
+(global-set-key "\C-h" 'delete-backward-char)
+;;; è¡Œç•ªå·ã‚’è¡¨ç¤ºã™ã‚‹
+(line-number-mode t)
+(global-linum-mode t)
+;;; èµ·å‹•æ™‚ã®ç”»é¢ã¯ã„ã‚‰ãªã„
+(setq inhibit-startup-message t)
+;;; ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³æ™‚ã«ã€ãƒ•ã‚¡ã‚¤ãƒ«ãƒ€ã‚¤ã‚¢ãƒ­ã‚°ã‚’è¡¨ç¤ºã•ã›ãšã«ã€
+;;; ãƒŸãƒ‹ãƒãƒƒãƒ•ã‚¡ã«ã¦å…¥åŠ›ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹
+(setq use-file-dialog nil)
 
 ;; anything
 (require 'anything-startup)
@@ -124,72 +138,6 @@ This is a replacement for `anything-for-files'."
 (recentf-mode t)
 (setq recentf-max-saved-items 3000)
 
-
-(setq make-backup-files t)           ;; ƒoƒbƒNƒAƒbƒvƒtƒ@ƒCƒ‹‚ğ‚Ü‚Æ‚ß‚é
-(setq backup-directory-alist
-  (cons (cons "\\.*$" (expand-file-name "~/.emacs.d/backup"))
-    backup-directory-alist))
-(setq version-control t)             ;; •¡”‚ÌƒoƒbƒNƒAƒbƒv¢‘ã‚ğŠÇ—
-(setq kept-new-versions 5)           ;; V‚µ‚¢‚à‚Ì‚ğ‚¢‚­‚Âc‚·‚©
-(setq kept-old-versions 5)           ;; ŒÃ‚¢‚à‚Ì‚ğ‚¢‚­‚Âc‚·‚©
-(setq delete-old-versions t)         ;; Šm”F‚¹‚¸‚ÉŒÃ‚¢‚à‚Ì‚ğÁ‚·B
-(setq vc-make-backup-files t)        ;; ƒo[ƒWƒ‡ƒ“ŠÇ—‰º‚Ìƒtƒ@ƒCƒ‹‚àƒoƒbƒNƒAƒbƒv‚ğì‚éB
-(setq auto-save-default nil)         ;; #hoge#ƒtƒ@ƒCƒ‹‚ğì‚ç‚È‚¢
-
-;; Ÿ‰ñ‹N“®‚Éƒtƒ@ƒCƒ‹‚ÌŠJ‚«‹ï‡‚ğ‚»‚Ì‚Ü‚Ü‚É‚µ‚Ä‚­‚ê‚é
-(require 'session)
-(setq session-undo-check -1)
-(add-hook 'after-init-hook 'session-initialize)
-
-;; auto-save Ÿè‚É•Û‘¶‚µ‚Ä‚­‚ê‚é
-(require 'auto-save-buffers-enhanced)
-(setq auto-save-buffers-enhanced-interval 3)
-(auto-save-buffers-enhanced t)
-
-;; emacs‹N“®‚ÉƒpƒX‚ğport select‚µ‚½‚à‚Ì‚É‚ ‚í‚¹‚é
-(dolist (dir (list
-              "/sbin"  
-              "/usr/sbin"  
-              "/bin"  
-              "/usr/bin"  
-              "/opt/local/bin"  
-              "/sw/bin"  
-              "/usr/local/bin"  
-	      "/opt/local/Library/Frameworks/Python.framework/Versions/Current/bin"
-	      "/Users/hiro/.nvm/v0.6.6/bin"
-              (expand-file-name "~/bin")  
-              (expand-file-name "~/.emacs.d/bin")  
-              ))  
- ;; PATH ‚Æ exec-path ‚É“¯‚¶•¨‚ğ’Ç‰Á‚µ‚Ü‚·  
- (when (and (file-exists-p dir) (not (member dir exec-path)))  
-   (setenv "PATH" (concat dir ":" (getenv "PATH")))  
-   (setq exec-path (append (list dir) exec-path))))
-(setenv "MANPATH" (concat "/usr/local/man:/usr/share/man:/Developer/usr/share/man:/sw/share/man" (getenv "MANPATH")))
-
-;;; key İ’è
-;; Option‚ÆCommandƒL[“ü‚ê‘Ö‚¦
-(setq ns-command-modifier (quote meta))
-(setq ns-alternate-modifier (quote super))
-;; ƒVƒXƒeƒ€ƒVƒ‡[ƒgƒJƒbƒg‚ğ—Dæ‚µ‚È‚¢?
-(setq mac-pass-control-to-system nil)
-(setq mac-pass-command-to-system nil)
-(setq mac-pass-option-to-system nil)
-
-; “ú–{Œê
-(set-language-environment 'Japanese)
-; utf-8
-(prefer-coding-system 'utf-8-unix)
-; backspace
-(global-set-key "\C-h" 'delete-backward-char)
-;;; s”Ô†‚ğ•\¦‚·‚é
-(line-number-mode t)
-(global-linum-mode t)
-;;; ‹N“®‚Ì‰æ–Ê‚Í‚¢‚ç‚È‚¢
-(setq inhibit-startup-message t)
-;;; ƒtƒ@ƒCƒ‹ƒI[ƒvƒ“‚ÉAƒtƒ@ƒCƒ‹ƒ_ƒCƒAƒƒO‚ğ•\¦‚³‚¹‚¸‚ÉA
-;;; ƒ~ƒjƒoƒbƒtƒ@‚É‚Ä“ü—Í‚Å‚«‚é‚æ‚¤‚É‚·‚é
-(setq use-file-dialog nil)
-
 ;; moccur
 (require 'color-moccur)
 (require 'moccur-edit)
@@ -203,28 +151,10 @@ This is a replacement for `anything-for-files'."
 (setq display-buffer-function 'popwin:display-buffer)
 (push '(dired-mode :position top :noselect t) popwin:special-display-config)
 
-
 ;; undo, redo
 (require 'redo+)
 (require 'undo-tree)
 (global-undo-tree-mode)
-
-;; yasnippet
-(add-to-list 'load-path
-              "~/.emacs.d/site-lisp/yasnippet-0.6.1c")
-(require 'yasnippet)
-;;  (setq yas/trigger-key nil)
-(setq yas/trigger-key "C-,")
-;; ƒRƒƒ“ƒg‚âƒŠƒeƒ‰ƒ‹‚Å‚ÍƒXƒjƒyƒbƒg‚ğ“WŠJ‚µ‚È‚¢
-(setq yas/buffer-local-condition
-      '(or (not (or (string= "font-lock-comment-face"
-                             (get-char-property (point) 'face))
-                    (string= "font-lock-string-face"
-                             (get-char-property (point) 'face))))
-           '(require-snippet-condition . force-in-comment)))
-(yas/load-directory "~/.emacs.d/site-lisp/yasnippet-0.6.1c/snippets")
-(setq yas/prompt-functions '(yas/x-prompt yas/dropdown-prompt))
-(yas/initialize)
 
 ;; auto-complete
 (require 'auto-complete-config)
@@ -236,14 +166,26 @@ This is a replacement for `anything-for-files'."
 (setq ac-stop-flymake-on-completing t)
 (define-key ac-mode-map (kbd "C-.") 'auto-complete)
 (setq ac-use-menu-map t)
-;; ƒfƒtƒHƒ‹ƒg‚Åİ’èÏ‚İ
-;; 20s•ª•\¦
+;; ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§è¨­å®šæ¸ˆã¿
+;; 20è¡Œåˆ†è¡¨ç¤º
 (setq ac-menu-height 20)
 
 ;; js2-mode
 (add-to-list 'load-path "~/.emacs.d/js2-mode" )
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+;; custom-set-variables was added by Custom.
+;; If you edit it by hand, you could mess it up, so be careful.
+;; Your init file should contain only one such instance.
+;; If there is more than one, they won't work right.
+;; (custom-set-variables
+;;  '(js2-always-indent-assigned-expr-in-decls-p t)
+;;  '(js2-auto-indent-p t)
+;;  '(js2-enter-indents-newline t)
+;;  '(js2-highlight-level 3)
+;;  '(js2-indent-on-enter-key t)
+;;  '(js2-mirror-mode t))
+
 ;; for rst-mode
 (setq frame-background-mode 'dark)
 ;; for coffee mode
@@ -253,73 +195,6 @@ This is a replacement for `anything-for-files'."
 ;; python
 (add-hook 'python-mode-hook '(lambda () 
      (define-key python-mode-map "\C-m" 'newline-and-indent)))
-
-;; flymake definition
-(when (load "flymake" t)
-  ;; flymake python
-  (defun flymake-pyflakes-init () 
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy 
-		       'flymake-create-temp-inplace)) 
-	   (local-file (file-relative-name 
-			temp-file 
-			(file-name-directory buffer-file-name)))) 
-      (list "pyflakes" (list local-file)))) 
-
-  (add-to-list 'flymake-allowed-file-name-masks 
-	       '("\\.py\\'" flymake-pyflakes-init)) 
-  
-  ;; FlymakeHtml
-  ;; http://www.emacswiki.org/emacs/FlymakeHtml
-  (delete '("\\.html?\\'" flymake-xml-init) flymake-allowed-file-name-masks)
-  (defun flymake-html-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      ;; (list "tidy" (list local-file))))
-      (list "tidy" (list "-utf8" local-file))))
-  (add-to-list 'flymake-allowed-file-name-masks
-               '("\\.html$\\|\\.ctp" flymake-html-init))
-  (add-to-list 'flymake-err-line-patterns
-               '("line \\([0-9]+\\) column \\([0-9]+\\) - \\(Warning\\|Error\\): \\(.*\\)"
-                 nil 1 2 4))
-  (add-hook 'html-mode-hook '(lambda () (flymake-mode t)))
-  (add-hook 'nxml-mode-hook '(lambda () (flymake-mode t)))
-  ;; flymake coffee
-  (require 'flymake-coffee)
-  (add-hook 'coffee-mode-hook 'flymake-coffee-load)
-
-  ;;;;;;;;;;;;;;;;;;
-  ;; error avoidance
-  ;; http://d.hatena.ne.jp/sugyan/20100705/1278306885
-  (defadvice flymake-post-syntax-check
-    (before flymake-force-check-was-interrupted)
-    (setq flymake-check-was-interrupted t))
-  (ad-activate 'flymake-post-syntax-check)
-  ;; option
-  (setq flymake-gui-warnings-enabled t)
-)
-
-
-;; flymake
-(require 'flymake-cursor) ;; tooltip‚ğo‚·‚æ‚¤‚É’¼Ú‘‚«Š·‚¦
-(require 'flymake-extension)
-(add-hook 'find-file-hook 'flymake-find-file-hook)
-
-;; (setq flymake-extension-use-showtip t)
-;; (setq flymake-extension-auto-show t)
-(global-set-key "\C-cff" 'flymake-goto-next-error)
-(global-set-key "\C-cfb" 'flymake-goto-prev-error)
-
-(require 'rfringe)
-(custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(flymake-errline ((((class color)) (:italic t :underline "red" :weight extra-bold))))
- '(flymake-warnline ((((class color)) (:italic t :underline "violet" :weight extra-bold)))))
 
 
 ;; org-mode
@@ -343,17 +218,3 @@ This is a replacement for `anything-for-files'."
     ("m" "Memo" entry (file+headline "~/Dropbox/org/notes.org" "MemoList")
          "* [%^G]%U %?\n %i")
 ))
-
-
-
-(custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(js2-always-indent-assigned-expr-in-decls-p t)
- '(js2-auto-indent-p t)
- '(js2-enter-indents-newline t)
- '(js2-highlight-level 3)
- '(js2-indent-on-enter-key t)
- '(js2-mirror-mode t))
