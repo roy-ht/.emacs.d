@@ -2,42 +2,87 @@
 (add-to-list 'load-path "~/.emacs.d/site-lisp" )
 (add-to-list 'load-path "~/.emacs.d/auto-install" )
 
+;;; el-get
+(add-to-list 'load-path "~/.emacs.d/el-get")
+(require 'el-get)
+(el-get 'sync)
+
 (cond
  ((window-system)
   (load "~/.emacs.d/init.app.el")
   (load "~/.emacs.d/init.term.el")))
+
+;; vc gitはoff
+(setq vc-handled-backends ())
+
+(require 'jaunte)
+(global-set-key (kbd "C-c C-;") 'jaunte)
+(setq-default jaunte-hint-unit 'symbol)
+
+
+;; white spaces
+;; (require 'show-wspace)
+;; (add-hook 'font-lock-mode-hook 'ws-highlight-hard-hyphens)
+;; (add-hook 'font-lock-mode-hook 'ws-highlight-hard-spaces)
+;; (add-hook 'font-lock-mode-hook 'ws-highlight-trailing-whitespace)
+;; (set-face-background 'ws-trailing-whitespace "dark red")
+
+;; (add-hook 'font-lock-mode-hook 'ws-highlight-tabs)
+;; (setq jaspace-highlight-tabs t)
+;; (setq jaspace-alternate-jaspace-string "□")
+;; あいうえお さしすせそ　　たちつてと
+
+(when (and (>= emacs-major-version 23)
+      (require 'whitespace nil t))
+  (setq whitespace-style
+	'(face
+	  ;; tabs spaces newline trailing space-before-tab space-after-tab    
+	  ;; space-mark tab-mark newline-mark))
+	  tabs spaces trailing space-mark tab-mark))
+  (let ((dark (eq 'dark (frame-parameter nil 'background-mode))))
+    (set-face-attribute 'whitespace-space nil
+			:foreground (if dark "pink4" "azure3")
+			:background 'unspecified)
+    (set-face-attribute 'whitespace-trailing nil
+			:foreground 'unspecified
+			:background (if dark "dark red" "red"))
+    (set-face-attribute 'whitespace-tab nil
+			:foreground (if dark "gray20" "gray80")
+			:background 'unspecified
+			:strike-through t)
+    (set-face-attribute 'whitespace-newline nil
+			:foreground (if dark "darkcyan" "darkseagreen")))
+  (setq whitespace-space-regexp "\\(　+\\)")
+  (setq whitespace-display-mappings
+	'(;; (space-mark   ?\     [?\u00B7]     [?.]) ; space - centered dot
+      (space-mark   ?\xA0  [?\xA4]  [?_]) ; hard space - currency
+	  (space-mark   ?\x8A0 [?\x8A4] [?_]) ; hard space - currency
+	  (space-mark   ?\x920 [?\x924] [?_]) ; hard space - currency
+	  (space-mark   ?\xE20 [?\xE24] [?_]) ; hard space - currency
+	  (space-mark   ?\xF20 [?\xF24] [?_]) ; hard space - currency
+	  (space-mark   ?　    [?□]    [?＿]) ; full-width space - square
+	  (newline-mark ?\n    [?\xAB ?\n])   ; eol - right quote mark
+	  ))
+  (setq whitespace-global-modes '(not dired-mode tar-mode))
+  (global-whitespace-mode 1))
+
 
 ;; paren 強調
 (show-paren-mode t)
 
 (setq show-paren-delay 0)
 (setq show-paren-style 'parenthesis)
-;; (setq show-paren-style 'mixed)
-;; (set-face-background 'show-paren-match-face "#330066")
-;; (set-face-foreground 'show-paren-match-face "99ff33")
 (set-face-attribute 'show-paren-match-face nil :weight 'extra-bold)
-;;(set-face-attribute 'show-paren-match-face nil
-;;                    :background nil :foreground nil
-;;                    :underline "#ffff00" :weight 'extra-bold)
 
-;; goto
-(global-set-key "\M-g" 'goto-line)
-;; scroll
-(setq scroll-step 3)
-;; 改行
-(setq require-final-newline t)
-;; タイトルバー
-(setq frame-title-format (format "emacs@%s : %%f" (system-name)))
-;; indent設定
-(setq-default indent-tabs-mode nil)
-;; tab 幅を 4 に設定
-(setq-default tab-width 4)
+(global-set-key "\M-g" 'goto-line) ;; goto
+(setq scroll-step 3) ;; scroll
+(setq require-final-newline t) ;; 改行
+(setq frame-title-format (format "emacs@%s : %%f" (system-name))) ;; タイトルバー
+(setq-default indent-tabs-mode nil) ;; indent設定
+(setq-default tab-width 4) ;; tab 幅を 4 に設定
 
-;; カーソル色をIMEのON/OFFで変更
-;; うまくいかない。。。
-
-;; isearch+
-(eval-after-load "isearch" '(require 'isearch+))
+;; カーソル色をIMEのON/OFFで変更  ;; うまくいかない。。。
+(eval-after-load "isearch" '(require 'isearch+))  ;; isearch+
 
 (setq make-backup-files t)           ;; バックアップファイルをまとめる
 (setq backup-directory-alist
@@ -56,9 +101,9 @@
 (add-hook 'after-init-hook 'session-initialize)
 
 ;; auto-save 勝手に保存してくれる
-(require 'auto-save-buffers-enhanced)
-(setq auto-save-buffers-enhanced-interval 3)
-(auto-save-buffers-enhanced t)
+;; (require 'auto-save-buffers-enhanced)
+;; (setq auto-save-buffers-enhanced-interval 3)
+;; (auto-save-buffers-enhanced t)
 
 ;; emacs起動時にパスをport selectしたものにあわせる
 (dolist (dir (list
@@ -89,54 +134,90 @@
 (setq mac-pass-command-to-system nil)
 (setq mac-pass-option-to-system nil)
 
-; 日本語
-(set-language-environment 'Japanese)
-; utf-8
-(prefer-coding-system 'utf-8-unix)
-; backspace
-(global-set-key "\C-h" 'delete-backward-char)
-;;; 行番号を表示する
-(line-number-mode t)
-(global-linum-mode t)
-;;; 起動時の画面はいらない
-(setq inhibit-startup-message t)
-;;; ファイルオープン時に、ファイルダイアログを表示させずに、
-;;; ミニバッファにて入力できるようにする
-(setq use-file-dialog nil)
+(set-language-environment 'Japanese) ; 日本語
+(prefer-coding-system 'utf-8-unix) ; utf-8
+(global-set-key "\C-h" 'delete-backward-char) ; backspace
+(line-number-mode t) ;; 行番号を表示する
+(global-linum-mode t) ;; 行番号を表示する
+(column-number-mode t) ;; 列番号
+(setq inhibit-startup-message t) ;;; 起動時の画面はいらない
+(setq use-file-dialog nil) ;;; ファイルオープン時に、ファイルダイアログを表示させずに、ミニバッファにて入力できるようにする
+;; 同名バッファを分りやすくする
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+(setq uniquify-ignore-buffers-re "*[^*]+*")
 
-;; anything
-(require 'anything-startup)
 
-(defun my-anything-filelist+ ()
-  "Preconfigured `anything' to open files/buffers/bookmarks instantly.
-This is a replacement for `anything-for-files'."
+;; helm
+;; ----------------------------------------------------
+(require 'helm-config)
+(helm-mode 1)
+
+(global-set-key (kbd "C-;") 'helm-mini)
+(setq helm-idle-delay 0.1)
+(setq helm-input-idle-delay 0)
+(setq helm-candidate-number-limit 500)
+
+;; List files in git repos
+(defun helm-c-sources-git-project-for (pwd)
+  (loop for elt in
+        '(("Modified files" . "--modified")
+          ("Untracked files" . "--others --exclude-standard")
+          ("All controlled files in this project" . nil))
+        for title  = (format "%s (%s)" (car elt) pwd)
+        for option = (cdr elt)
+        for cmd    = (format "git ls-files %s" (or option ""))
+        collect
+        `((name . ,title)
+          (init . (lambda ()
+                    (unless (and (not ,option) (helm-candidate-buffer))
+                      (with-current-buffer (helm-candidate-buffer 'global)
+                        (call-process-shell-command ,cmd nil t nil)))))
+          (candidates-in-buffer)
+          (type . file))))
+
+(defun helm-git-project-topdir ()
+  (file-name-as-directory
+   (replace-regexp-in-string
+    "\n" ""
+    (shell-command-to-string "git rev-parse --show-toplevel"))))
+
+(defun helm-git-project ()
   (interactive)
-  (anything-other-buffer
-   '(anything-c-source-ffap-line
-     anything-c-source-ffap-guesser
-     anything-c-source-buffers+
-     anything-c-source-recentf
-     anything-c-source-bookmarks
-     anything-c-source-file-cache
-;;     anything-c-source-filelist
-     anything-c-source-mac-spotlight
-     )
-   "*anything file list*"))
+  (let ((topdir (helm-git-project-topdir)))
+    (unless (file-directory-p topdir)
+      (error "I'm not in Git Repository!!"))
+    (let* ((default-directory topdir)
+           (sources (helm-c-sources-git-project-for default-directory)))
+      (helm-other-buffer sources "*helm git project*"))))
+(define-key global-map (kbd "C-x C-g") 'helm-git-project)
 
-;; (setq anything-c-filelist-file-name "/Users/tmaeda/tmp/all.filelist")
-;; (setq anything-grep-candidates-fast-directory-regexp "^/tmp")
-;;;;;;;;;;;;;;;;;;;
-;; anything-kill-ring
-(defun anything-kill-ring ()
-  (interactive)
-  (anything 'anything-c-source-kill-ring nil nil nil nil "*anything kill ring*"))
+;; helm binding
+(global-set-key (kbd "C-M-z")   'helm-resume)
+(global-set-key (kbd "C-x C-r") 'helm-recentf)
+(global-set-key (kbd "C-x C-c") 'helm-M-x)
+(global-set-key (kbd "M-y")     'helm-show-kill-ring)
+(global-set-key (kbd "C-x C-i") 'helm-imenu)
+(global-set-key (kbd "C-M-s")   'helm-occur)
+(global-set-key (kbd "C-x b")   'helm-buffers-list)
 
-(global-set-key (kbd "M-y") 'anything-kill-ring)
-(global-set-key (kbd "C-;") 'my-anything-filelist+)
-;; reconf-ext
+
+
+;; recentf-ext
 (require 'recentf-ext)
-(recentf-mode t)
-(setq recentf-max-saved-items 3000)
+(setq recentf-exclude '("/auto-install/" ".recentf" "/repos/" "/elpa/"
+                        "\\.mime-example" "\\.ido.last" "COMMIT_EDITMSG"))
+(setq recentf-auto-cleanup 10)
+(if window-system
+    (run-at-time t 600 'recentf-save-list))
+(defadvice recentf-save-list (around no-message activate)
+  (flet ((write-file (file &optional confirm)
+                     (let ((str (buffer-string)))
+                       (with-temp-file file
+                         (insert str)))))
+    ad-do-it))
+(recentf-mode 1)
 
 ;; moccur
 (require 'color-moccur)
@@ -146,15 +227,11 @@ This is a replacement for `anything-for-files'."
 (require 'wdired)
 (define-key dired-mode-map "r" 'wdired-change-to-wdired-mode)
 
-;; popwin
-(require 'popwin)
-(setq display-buffer-function 'popwin:display-buffer)
-(push '(dired-mode :position top :noselect t) popwin:special-display-config)
-
 ;; undo, redo
 (require 'redo+)
-(require 'undo-tree)
-(global-undo-tree-mode)
+(global-set-key (kbd "C-?") 'redo)
+(setq undo-limit 600000)
+(setq undo-strong-limit 900000)
 
 ;; auto-complete
 (require 'auto-complete-config)
@@ -174,28 +251,12 @@ This is a replacement for `anything-for-files'."
 (add-to-list 'load-path "~/.emacs.d/js2-mode" )
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-;; custom-set-variables was added by Custom.
-;; If you edit it by hand, you could mess it up, so be careful.
-;; Your init file should contain only one such instance.
-;; If there is more than one, they won't work right.
-;; (custom-set-variables
-;;  '(js2-always-indent-assigned-expr-in-decls-p t)
-;;  '(js2-auto-indent-p t)
-;;  '(js2-enter-indents-newline t)
-;;  '(js2-highlight-level 3)
-;;  '(js2-indent-on-enter-key t)
-;;  '(js2-mirror-mode t))
 
 ;; for rst-mode
 (setq frame-background-mode 'dark)
 ;; for coffee mode
 (add-to-list 'load-path "~/.emacs.d/site-lisp/coffee-mode")
 (require 'coffee-mode)
-
-;; python
-(add-hook 'python-mode-hook '(lambda () 
-     (define-key python-mode-map "\C-m" 'newline-and-indent)))
-
 
 ;; org-mode
 (require 'org-install)
@@ -218,3 +279,11 @@ This is a replacement for `anything-for-files'."
     ("m" "Memo" entry (file+headline "~/Dropbox/org/notes.org" "MemoList")
          "* [%^G]%U %?\n %i")
 ))
+
+;; for markdown-mode
+(autoload 'markdown-mode "markdown-mode.el" "Major mode for editing Markdown files" t)
+(defun markdown-custom () "markdown-mode-hook"
+  (setq auto-mode-alist (cons '("\\.md" . markdown-mode) auto-mode-alist))
+  (setq markdown-command "redcarpet --smarty --parse-tables --parse-fenced_code_blocks --parse-autolink --parse-lax_spacing"))
+(add-hook 'markdown-mode-hook '(lambda() (markdown-custom)))
+
