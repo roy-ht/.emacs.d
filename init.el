@@ -4,7 +4,12 @@
 
 ;;; el-get
 (add-to-list 'load-path "~/.emacs.d/el-get")
-(require 'el-get)
+(unless (require 'el-get nil t)
+  (url-retrieve
+   "https://raw.github.com/dimitri/el-get/master/el-get-install.el"
+   (lambda (s)
+     (goto-char (point-max))
+     (eval-print-last-sexp))))
 (el-get 'sync)
 
 (cond
@@ -247,6 +252,13 @@
 ;; 20行分表示
 (setq ac-menu-height 20)
 
+
+;; expand-region
+(require 'expand-region)
+(global-set-key (kbd "C-0") 'er/expand-region)
+(global-set-key (kbd "C-9") 'er/contract-region) ;; リージョンを狭める
+;; transient-mark-modeが nilでは動作しませんので注意
+(transient-mark-mode t)
 ;; js2-mode
 (add-to-list 'load-path "~/.emacs.d/js2-mode" )
 (autoload 'js2-mode "js2-mode" nil t)
